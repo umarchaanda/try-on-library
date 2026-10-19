@@ -1,0 +1,32 @@
+{
+  "name": "virtual-tryon",
+  "version": "0.1.0",
+  "description": "Drop-in virtual try-on for any clothing store. One script tag, Shadow DOM UI, camera or upload, side-by-side and slider comparison.",
+  "type": "module",
+  "main": "./dist/tryon.umd.js",
+  "module": "./dist/tryon.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/tryon.es.js",
+      "require": "./dist/tryon.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.json --emitDeclarationOnly --outDir dist/types",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.5.4",
+    "vite": "5.4.21"
+  },
+  "license": "MIT"
+}

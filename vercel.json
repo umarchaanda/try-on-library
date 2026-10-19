@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "installCommand": "npm install",
+  "buildCommand": "vite build --config vite.site.config.ts && node -e \"require('fs').cpSync('demo','dist-site/demo',{recursive:true})\"",
+  "outputDirectory": "dist-site"
+}

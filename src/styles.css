@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens live on :host so stores can theme the widget and dark mode
+   only has to swap variables. Tailwind colours point at these variables. */
+@layer base {
+  :host {
+    all: initial;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-tap-highlight-color: transparent;
+
+    --ink: #231C2B;
+    --muted: #6B6374;
+    --line: #E6E2EA;
+    --surface: #FFFFFF;
+    --soft: #F5F3F7;
+    --backdrop: rgba(22, 16, 28, 0.58);
+    --danger: #B42318;
+    --danger-soft: #FDEDEB;
+    --accent: var(--vto-accent, #0F6B5C);
+    --on-accent: var(--vto-on-accent, #FFFFFF);
+    --accent-soft: color-mix(in srgb, var(--accent) 13%, transparent);
+    --accent-text: var(--accent);
+    --r: var(--vto-radius, 14px);
+  }
+  :host([data-theme="dark"]) {
+    --ink: #F2EEF5; --muted: #A69DAF; --line: #352F3C; --surface: #19151E; --soft: #231E29;
+    --backdrop: rgba(6, 4, 8, 0.7); --danger: #FF8A7A; --danger-soft: #3A1E1C;
+    --accent-text: color-mix(in srgb, var(--accent) 45%, #FFFFFF);
+  }
+  @media (prefers-color-scheme: dark) {
+    :host(:not([data-theme="light"])) {
+      --ink: #F2EEF5; --muted: #A69DAF; --line: #352F3C; --surface: #19151E; --soft: #231E29;
+      --backdrop: rgba(6, 4, 8, 0.7); --danger: #FF8A7A; --danger-soft: #3A1E1C;
+      --accent-text: color-mix(in srgb, var(--accent) 45%, #FFFFFF);
+    }
+  }
+
+  [hidden] { display: none !important; }
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+}
+
+/* The few pieces that need pseudo-elements or SVG child styling. */
+@layer components {
+  .vto-guide * {
+    fill: none;
+    stroke: rgba(255, 255, 255, .75);
+    stroke-width: 2.25;
+    stroke-dasharray: 7 7;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Processing: a tailor's seam runs down the photo while a needle travels along it. */
+  .vto-seam {
+    @apply absolute inset-x-0 top-0 h-0 border-t-2 border-dashed border-on-accent animate-seam;
+  }
+  .vto-seam::before {
+    content: "";
+    @apply absolute inset-x-0 bottom-0 h-[120px];
+    background: linear-gradient(to top, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+  }
+  .vto-seam::after {
+    content: "";
+    @apply absolute -top-[7px] left-0 h-3 w-3 rounded-full bg-on-accent animate-needle;
+    box-shadow: 0 0 0 4px var(--accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vto-seam { top: 50%; }
+  }
+}

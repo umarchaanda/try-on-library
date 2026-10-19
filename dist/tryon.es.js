@@ -35,7 +35,7 @@ class D {
   async run(t, e, a = {}) {
     if (this.isMock) return this.runMock(t, a);
     const r = this.cfg.endpoint.replace(/\/+$/, ""), { signal: i, onStatus: o } = a, c = new FormData();
-    c.append("person_image", t, "person.jpg"), c.append("garment_image_url", Q(e.image)), e.id && c.append("product_id", e.id), o == null || o("upload");
+    c.append("person_image", t, "person.jpg"), c.append("garment_image_url", Q(e.image)), e.id && c.append("product_id", e.id), e.name && c.append("garment_description", e.name), o == null || o("upload");
     let d = await this.request(`${r}/v1/tryon`, { method: "POST", body: c, signal: i });
     const p = Date.now();
     let u = 0;

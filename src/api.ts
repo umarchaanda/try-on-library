@@ -78,6 +78,7 @@ export class ApiClient {
     form.append('person_image', photo, 'person.jpg');
     form.append('garment_image_url', absoluteUrl(product.image));
     if (product.id) form.append('product_id', product.id);
+    if (product.name) form.append('garment_description', product.name);
 
     onStatus?.('upload');
     let job = await this.request<JobResponse>(`${base}/v1/tryon`, { method: 'POST', body: form, signal });

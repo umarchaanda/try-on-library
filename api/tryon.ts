@@ -1,3 +1,4 @@
+import { GeminiError, runGeminiTryOn } from './_gemini.js';
 import { fetchGarment, HfError, runHfTryOn } from './_hf.js';
 import { checkAuth, json, MODEL_VERSION, preflight, replicate, replicateToken } from './_lib.js';
 
@@ -21,7 +22,7 @@ export function OPTIONS(req: Request) {
 export async function POST(req: Request) {
   const denied = checkAuth(req);
   if (denied) return denied;
-  const provider = process.env.TRYON_PROVIDER || (replicateToken() ? 'replicate' : 'hf');
+  const provider = process.env.TRYON_PROVIDER || (process.env.GEMINI_API_KEY ? 'gemini' : replicateToken() ? 'replicate' : 'hf');
   if (provider === 'replicate' && !replicateToken()) {
     return json(req, { error_code: 'server', detail: 'Backend is not configured' }, 500);
   }
@@ -45,7 +46,20 @@ export async function POST(req: Request) {
   if (!validGarmentUrl(garment)) return json(req, { error_code: 'invalid_photo', detail: 'garment_image_url is invalid' }, 422);
 
   const category = String(form.get('category') || process.env.DEFAULT_CATEGORY || 'upper_body');
-  const description = String(form.get('garment_description') || 'clothing').slice(0, 200);
+  const description = String(form.get('garment_description') || 'clothing').slice(0, 200) + (provider === 'hf' ? ', worn untucked and loose, long hip-length top' : '');
+
+  if (provider === 'gemini') {
+    try {
+      const garmentBlob = await fetchGarment(garment);
+      const resultUrl = await runGeminiTryOn(photo, garmentBlob, description, 55_000);
+      return json(req, { job_id: crypto.randomUUID(), status: 'done', result_url: resultUrl });
+    } catch (e) {
+      const err = e instanceof HfError || e instanceof GeminiError ? e : new HfError('server', 'Try-on failed');
+      console.error('gemini try-on failed', err.code, err.message);
+      const status = err.code === 'invalid_photo' ? 422 : err.code === 'rate_limited' ? 429 : err.code === 'timeout' ? 504 : 502;
+      return json(req, { error_code: err.code, detail: err.message }, status);
+    }
+  }
 
   if (provider === 'hf') {
     try {

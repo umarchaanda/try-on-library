@@ -174,6 +174,7 @@ index.html     dev demo store using src/
 The `api/` folder is a serverless backend that implements the contract above (`/v1/tryon`).
 
 - **Default, free:** the public IDM-VTON Space on Hugging Face. No key needed. It is shared ZeroGPU capacity, so it can be slow (about 25 s when warm) or hit its quota. Set a free `HF_TOKEN` (huggingface.co/settings/tokens) in Vercel env vars for a bigger quota.
+- **Best quality (free tier): Gemini.** Set `GEMINI_API_KEY` (aistudio.google.com/apikey). It keeps the garment's real styling (kurtis stay untucked) and handles tight crops. Used first when the key is present.
 - **Paid, more reliable:** set `REPLICATE_API_TOKEN` and it switches to Replicate (or force it with `TRYON_PROVIDER=replicate` / `hf`).
 - Optional: `TRYON_API_KEYS` (comma list, enforced against `X-Api-Key`), `ALLOWED_ORIGINS` (comma list, default `*`).
 - The garment URL must be a public JPEG/PNG/WebP photo of the garment (flat lay or on a model). SVG drawings are rejected. The shopper's photo is never stored.

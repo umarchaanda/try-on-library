@@ -126,7 +126,8 @@
 <script type="module">
   import VirtualTryOn from '/src/index.ts';
   VirtualTryOn.init({
-    // endpoint: 'http://localhost:8000',   // uncomment when your backend is running
+    // Real backend lives on the same origin when deployed (api/ folder). Locally it falls back to demo mode.
+    endpoint: ['localhost','127.0.0.1'].includes(location.hostname) ? '' : location.origin,
     // apiKey: 'pk_test_123',
     accent: '#5B2A4E',
     locale: 'en',                           // 'ur' for Roman Urdu

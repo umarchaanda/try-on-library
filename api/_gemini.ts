@@ -52,7 +52,7 @@ export async function runGeminiTryOn(person: Blob, garment: Blob, description: s
     throw new GeminiError('server', 'Could not reach Gemini');
   }
 
-  if (res.status === 429) throw new GeminiError('rate_limited', 'Gemini quota reached');
+  if (res.status === 429) throw new GeminiError('rate_limited', 'Gemini quota reached: ' + (await res.text().catch(() => '')).slice(0, 1500));
   if (res.status === 401 || res.status === 403) throw new GeminiError('server', 'Gemini key rejected');
   if (!res.ok) throw new GeminiError('server', `Gemini error ${res.status}: ${(await res.text().catch(() => '')).slice(0, 300)}`);
 

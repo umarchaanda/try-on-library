@@ -46,8 +46,9 @@ export async function POST(req: Request) {
   if (!validGarmentUrl(garment)) return json(req, { error_code: 'invalid_photo', detail: 'garment_image_url is invalid' }, 422);
 
   const category = String(form.get('category') || process.env.DEFAULT_CATEGORY || 'upper_body');
-  const description = String(form.get('garment_description') || 'clothing').slice(0, 200) + (provider === 'hf' ? ', worn untucked and loose, long hip-length top' : '');
+  const description = String(form.get('garment_description') || 'clothing').slice(0, 200) + (provider !== 'replicate' ? ', worn untucked and loose, long hip-length top' : '');
 
+  let useHf = provider === 'hf';
   if (provider === 'gemini') {
     try {
       const garmentBlob = await fetchGarment(garment);
@@ -56,12 +57,17 @@ export async function POST(req: Request) {
     } catch (e) {
       const err = e instanceof HfError || e instanceof GeminiError ? e : new HfError('server', 'Try-on failed');
       console.error('gemini try-on failed', err.code, err.message);
-      const status = err.code === 'invalid_photo' ? 422 : err.code === 'rate_limited' ? 429 : err.code === 'timeout' ? 504 : 502;
-      return json(req, { error_code: err.code, detail: err.message }, status);
+      // Free-tier Gemini image quota is often 0: fall back to the free Hugging Face model.
+      if (err.code === 'rate_limited' || (err.code === 'server' && /key|reach|error 4dd/i.test(err.message))) {
+        useHf = true;
+      } else {
+        const status = err.code === 'invalid_photo' ? 422 : err.code === 'timeout' ? 504 : 502;
+        return json(req, { error_code: err.code, detail: err.message }, status);
+      }
     }
   }
 
-  if (provider === 'hf') {
+  if (useHf) {
     try {
       const garmentBlob = await fetchGarment(garment);
       const resultUrl = await runHfTryOn(photo, garmentBlob, description, 52_000);

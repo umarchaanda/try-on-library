@@ -44,7 +44,7 @@ export async function runGeminiTryOn(person: Blob, garment: Blob, description: s
             ],
           },
         ],
-        generationConfig: { responseModalities: ['IMAGE'] },
+        generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
       }),
     });
   } catch (e) {

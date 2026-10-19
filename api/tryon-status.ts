@@ -1,4 +1,4 @@
-import { checkAuth, json, mapStatus, preflight, replicate, replicateToken } from './_lib';
+import { checkAuth, json, mapStatus, preflight, replicate, replicateToken } from './_lib.js';
 
 export function OPTIONS(req: Request) {
   return preflight(req);

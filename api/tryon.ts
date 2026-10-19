@@ -1,5 +1,5 @@
-import { fetchGarment, HfError, runHfTryOn } from './_hf';
-import { checkAuth, json, MODEL_VERSION, preflight, replicate, replicateToken } from './_lib';
+import { fetchGarment, HfError, runHfTryOn } from './_hf.js';
+import { checkAuth, json, MODEL_VERSION, preflight, replicate, replicateToken } from './_lib.js';
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const CATEGORIES = ['upper_body', 'lower_body', 'dresses'];

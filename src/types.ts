@@ -53,6 +53,8 @@ export interface Product {
   /** URL of the product photo (model wearing the garment). Required. */
   image: string;
   id?: string;
+  /** Optional hint for the backend: 'upper_body', 'lower_body' or 'dresses'. */
+  category?: string;
   name?: string;
   price?: string;
   sizes?: string[];

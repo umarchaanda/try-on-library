@@ -87,6 +87,7 @@ function productFromElement(el: HTMLElement): Product {
     id: d.tryonId || undefined,
     name: d.tryonName || undefined,
     price: d.tryonPrice || undefined,
+    category: d.tryonCategory || undefined,
     sizes: d.tryonSizes ? d.tryonSizes.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
   };
 }
@@ -131,10 +132,17 @@ if (typeof document !== 'undefined') {
     (document.currentScript as HTMLScriptElement | null) ||
     document.querySelector<HTMLScriptElement>('script[data-api-key], script[data-endpoint]');
   const d = script?.dataset;
-  if (d && (d.apiKey || d.endpoint || d.mock || d.locale || d.accent || d.theme)) {
+  // Loaded from our own host (.../tryon.umd.js)? Then that host is the backend unless data-endpoint says otherwise.
+  let hostOrigin: string | undefined;
+  try {
+    if (script?.src && /\/tryon[^/]*\.js(\?|$)/.test(script.src)) hostOrigin = new URL(script.src).origin;
+  } catch {
+    /* ignore */
+  }
+  if (d && (hostOrigin || d.apiKey || d.endpoint || d.mock || d.locale || d.accent || d.theme)) {
     init({
       apiKey: d.apiKey,
-      endpoint: d.endpoint,
+      endpoint: d.endpoint || (d.mock === 'true' ? undefined : hostOrigin),
       mock: d.mock === 'true' ? true : undefined,
       locale: d.locale as Locale | undefined,
       theme: d.theme as Theme | undefined,

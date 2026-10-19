@@ -1,7 +1,7 @@
 {
   "framework": null,
   "installCommand": "npm install",
-  "buildCommand": "vite build --config vite.site.config.ts && node -e \"require('fs').cpSync('demo','dist-site/demo',{recursive:true})\"",
+  "buildCommand": "vite build --config vite.site.config.ts && node -e \"const fs=require('fs');fs.cpSync('demo','dist-site/demo',{recursive:true});for(const f of ['tryon.umd.js','tryon.es.js'])fs.copyFileSync('dist/'+f,'dist-site/'+f)\"",
   "outputDirectory": "dist-site",
   "rewrites": [
     {
@@ -17,5 +17,24 @@
     "api/tryon.ts": {
       "maxDuration": 60
     }
-  }
+  },
+  "headers": [
+    {
+      "source": "/(tryon.umd.js|tryon.es.js)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=300"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    }
+  ]
 }

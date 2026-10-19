@@ -4,10 +4,18 @@
   "buildCommand": "vite build --config vite.site.config.ts && node -e \"require('fs').cpSync('demo','dist-site/demo',{recursive:true})\"",
   "outputDirectory": "dist-site",
   "rewrites": [
-    { "source": "/v1/tryon", "destination": "/api/tryon" },
-    { "source": "/v1/tryon/:id", "destination": "/api/tryon-status?id=:id" }
+    {
+      "source": "/v1/tryon",
+      "destination": "/api/tryon"
+    },
+    {
+      "source": "/v1/tryon/:id",
+      "destination": "/api/tryon-status?id=:id"
+    }
   ],
   "functions": {
-    "api/tryon.ts": { "maxDuration": 30 }
+    "api/tryon.ts": {
+      "maxDuration": 60
+    }
   }
 }

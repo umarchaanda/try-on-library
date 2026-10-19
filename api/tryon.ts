@@ -1,3 +1,4 @@
+import { fetchGarment, HfError, runHfTryOn } from './_hf';
 import { checkAuth, json, MODEL_VERSION, preflight, replicate, replicateToken } from './_lib';
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
@@ -20,7 +21,10 @@ export function OPTIONS(req: Request) {
 export async function POST(req: Request) {
   const denied = checkAuth(req);
   if (denied) return denied;
-  if (!replicateToken()) return json(req, { error_code: 'server', detail: 'Backend is not configured' }, 500);
+  const provider = process.env.TRYON_PROVIDER || (replicateToken() ? 'replicate' : 'hf');
+  if (provider === 'replicate' && !replicateToken()) {
+    return json(req, { error_code: 'server', detail: 'Backend is not configured' }, 500);
+  }
 
   let form: FormData;
   try {
@@ -43,7 +47,20 @@ export async function POST(req: Request) {
   const category = String(form.get('category') || process.env.DEFAULT_CATEGORY || 'upper_body');
   const description = String(form.get('garment_description') || 'clothing').slice(0, 200);
 
-  // The photo is passed inline as a data URI and never written to disk or storage.
+  if (provider === 'hf') {
+    try {
+      const garmentBlob = await fetchGarment(garment);
+      const resultUrl = await runHfTryOn(photo, garmentBlob, description, 52_000);
+      return json(req, { job_id: crypto.randomUUID(), status: 'done', result_url: resultUrl });
+    } catch (e) {
+      const err = e instanceof HfError ? e : new HfError('server', 'Try-on failed');
+      console.error('hf try-on failed', err.code, err.message);
+      const status = err.code === 'invalid_photo' ? 422 : err.code === 'rate_limited' ? 429 : err.code === 'timeout' ? 504 : 502;
+      return json(req, { error_code: err.code, detail: err.message }, status);
+    }
+  }
+
+  // Replicate: the photo is passed inline as a data URI and never written to disk or storage.
   const bytes = Buffer.from(await photo.arrayBuffer());
   const humanImg = `data:${photo.type || 'image/jpeg'};base64,${bytes.toString('base64')}`;
 

@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       const err = e instanceof HfError || e instanceof GeminiError ? e : new HfError('server', 'Try-on failed');
       console.error('gemini try-on failed', err.code, err.message);
       // Free-tier Gemini image quota is often 0: fall back to the free Hugging Face model.
-      if (err.code === 'rate_limited' || (err.code === 'server' && /key|reach|error 4dd/i.test(err.message))) {
+      if (err.code === 'rate_limited' || (err.code === 'server' && /key|reach|error 4\d\d/i.test(err.message))) {
         useHf = true;
       } else {
         const status = err.code === 'invalid_photo' ? 422 : err.code === 'timeout' ? 504 : 502;

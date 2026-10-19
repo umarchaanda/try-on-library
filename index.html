@@ -71,18 +71,18 @@
 </header>
 
 <main>
-  <div class="crumbs">Home / Lawn / Unstitched 3-piece</div>
+  <div class="crumbs">Home / Women / Stitched co-ord sets</div>
   <section class="product">
     <div class="gallery">
       <div class="thumbs" id="thumbs"></div>
-      <div class="main-img"><img id="main-img" src="/demo/assets/suit-mint.svg" alt=""></div>
+      <div class="main-img"><img id="main-img" src="https://cdn.shopify.com/s/files/1/0702/2487/1584/files/jst-25-2201_1_5e8a73a3-f543-4960-8b09-6cd3801b490f.jpg?width=1000" alt=""></div>
     </div>
     <div>
-      <div class="collection">Summer lawn 2026</div>
-      <h1 id="title">Gulbahar printed lawn 3-piece</h1>
-      <p class="price" id="price">Rs 6,490</p>
+      <div class="collection">Stitched 2-piece</div>
+      <h1 id="title">Cotton textured co-ord set</h1>
+      <p class="price" id="price">Rs 3,983</p>
 
-      <p class="opt-label">Colour <span id="colour-name">Mint</span></p>
+      <p class="opt-label">Colour <span id="colour-name">Yellow</span></p>
       <div class="swatches" id="swatches"></div>
 
       <p class="opt-label">Size</p>
@@ -91,10 +91,10 @@
       <div class="buy">
         <button class="btn-store" id="add-store">Add to bag</button>
         <button class="btn-try" id="try-btn"
-          data-tryon-product="/demo/assets/suit-mint.svg"
-          data-tryon-id="GB-3P-MINT"
-          data-tryon-name="Gulbahar printed lawn 3-piece, Mint"
-          data-tryon-price="Rs 6,490"
+          data-tryon-product="https://cdn.shopify.com/s/files/1/0702/2487/1584/files/jst-25-2201_1_5e8a73a3-f543-4960-8b09-6cd3801b490f.jpg?width=1000"
+          data-tryon-id="JST-25-2201"
+          data-tryon-name="Cotton textured co-ord set, Yellow"
+          data-tryon-price="Rs 3,983"
           data-tryon-sizes="XS,S,M,L,XL">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/></svg>
           Try it on
@@ -102,24 +102,17 @@
       </div>
 
       <div class="desc">
-        Digitally printed lawn shirt with an embroidered neckline and lace-trimmed sleeves, paired with a chiffon dupatta and dyed cambric trousers.
-        <ul><li>Shirt: printed lawn, 3 m</li><li>Dupatta: printed chiffon, 2.5 m</li><li>Trousers: dyed cambric, 2.5 m</li></ul>
+        Stitched two-piece co-ord set in textured cotton: a relaxed shirt and matching trousers.
+        <ul><li>Shirt: textured cotton</li><li>Trousers: textured cotton</li></ul>
       </div>
     </div>
   </section>
 
   <h2>Complete the look</h2>
-  <div class="grid">
-    <div class="card"><div class="img"><img src="/demo/assets/suit-rose.svg" alt=""></div><p>Mehr embroidered 3-piece</p><p class="p">Rs 7,250</p>
-      <button data-tryon-product="/demo/assets/suit-rose.svg" data-tryon-id="MH-3P-ROSE" data-tryon-name="Mehr embroidered 3-piece, Rose" data-tryon-price="Rs 7,250" data-tryon-sizes="S,M,L">Try on</button></div>
-    <div class="card"><div class="img"><img src="/demo/assets/suit-indigo.svg" alt=""></div><p>Sahil printed 2-piece</p><p class="p">Rs 4,890</p>
-      <button data-tryon-product="/demo/assets/suit-indigo.svg" data-tryon-id="SH-2P-IND" data-tryon-name="Sahil printed 2-piece, Indigo" data-tryon-price="Rs 4,890" data-tryon-sizes="S,M,L,XL">Try on</button></div>
-    <div class="card"><div class="img"><img src="/demo/assets/suit-mint.svg" alt=""></div><p>Gulbahar printed 3-piece</p><p class="p">Rs 6,490</p>
-      <button data-tryon-product="/demo/assets/suit-mint.svg" data-tryon-id="GB-3P-MINT" data-tryon-name="Gulbahar printed lawn 3-piece, Mint" data-tryon-price="Rs 6,490">Try on</button></div>
-  </div>
+  <div class="grid" id="related"></div>
 </main>
 
-<footer>Demo store for testing the Virtual Try-On library. Products and prices are placeholders.</footer>
+<footer>Demo store for testing the Virtual Try-On library. Product photos are hot-linked from junaidjamshed.com for testing only.</footer>
 <div class="toast" id="toast" role="status"></div>
 <details class="log" open><summary>Try-on events</summary><div id="log"></div></details>
 
@@ -134,20 +127,16 @@
   });
 </script>
 
+<script src="/demo/products.js"></script>
 <script>
   (function () {
-    var ASSET = '/demo/assets/';
-    var colours = [
-      { key: 'mint', name: 'Mint', hex: '#A9D6C6', sku: 'GB-3P-MINT' },
-      { key: 'rose', name: 'Rose', hex: '#E8B8C4', sku: 'GB-3P-ROSE' },
-      { key: 'indigo', name: 'Indigo', hex: '#8EA2D7', sku: 'GB-3P-IND' },
-    ];
+    var P = window.DEMO_PRODUCTS, colours = P.coords, imgUrl = function (f) { return P.cdn + f + "?width=1000"; };
     var sizes = ['XS', 'S', 'M', 'L', 'XL'];
     var sw = document.getElementById('swatches'), th = document.getElementById('thumbs'), sz = document.getElementById('sizes');
     var tryBtn = document.getElementById('try-btn'), main = document.getElementById('main-img');
 
     function select(i) {
-      var c = colours[i], src = ASSET + 'suit-' + c.key + '.svg';
+      var c = colours[i], src = imgUrl(c.img);
       main.src = src;
       document.getElementById('colour-name').textContent = c.name;
       sw.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-pressed', j === i); });
@@ -155,14 +144,14 @@
       // The try-on button simply reads its data attributes at click time.
       tryBtn.dataset.tryonProduct = src;
       tryBtn.dataset.tryonId = c.sku;
-      tryBtn.dataset.tryonName = 'Gulbahar printed lawn 3-piece, ' + c.name;
+      tryBtn.dataset.tryonName = 'Cotton textured co-ord set, ' + c.name;
     }
     colours.forEach(function (c, i) {
       var b = document.createElement('button');
       b.className = 'swatch'; b.style.background = c.hex; b.setAttribute('aria-label', c.name);
       b.onclick = function () { select(i); }; sw.appendChild(b);
       var t = document.createElement('button');
-      t.innerHTML = '<img src="' + ASSET + 'suit-' + c.key + '.svg" alt="' + c.name + '">';
+      t.innerHTML = '<img src="' + imgUrl(c.img) + '" alt="' + c.name + '">';
       t.onclick = function () { select(i); }; th.appendChild(t);
     });
     sizes.forEach(function (s) {
@@ -172,6 +161,13 @@
       sz.appendChild(b);
     });
     select(0);
+    var rel = document.getElementById('related');
+    P.related.forEach(function (r) {
+      var d = document.createElement('div'); d.className = 'card';
+      d.innerHTML = '<div class="img"><img src="' + imgUrl(r.img) + '" alt=""></div><p>' + r.name + '</p><p class="p">' + r.price + '</p>' +
+        '<button data-tryon-product="' + imgUrl(r.img) + '" data-tryon-id="' + r.sku + '" data-tryon-name="' + r.name + '" data-tryon-price="' + r.price + '" data-tryon-sizes="' + r.sizes + '">Try on</button>';
+      rel.appendChild(d);
+    });
 
     var count = 0, toastEl = document.getElementById('toast'), toastTimer;
     function toast(msg) {
@@ -182,7 +178,7 @@
       count++; document.getElementById('bag-count').textContent = count;
       toast('Added ' + name + (size ? ', size ' + size : '') + ' to your bag');
     }
-    document.getElementById('add-store').onclick = function () { addToBag('Gulbahar printed lawn 3-piece', null); };
+    document.getElementById('add-store').onclick = function () { addToBag('Cotton textured co-ord set', null); };
 
     // Listen to the library through plain DOM events (no JS API needed).
     var log = document.getElementById('log');

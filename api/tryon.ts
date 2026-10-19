@@ -1,5 +1,5 @@
 import { GeminiError, runGeminiTryOn } from './_gemini.js';
-import { fetchGarment, HfError, runHfTryOn } from './_hf.js';
+import { fetchGarment, HfError, IDM, runHfTryOn } from './_hf.js';
 import { checkAuth, json, MODEL_VERSION, preflight, replicate, replicateToken } from './_lib.js';
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
@@ -70,7 +70,18 @@ export async function POST(req: Request) {
   if (useHf) {
     try {
       const garmentBlob = await fetchGarment(garment);
-      const resultUrl = await runHfTryOn(photo, garmentBlob, description, 52_000);
+      let resultUrl: string;
+      const started = Date.now();
+      try {
+        resultUrl = await runHfTryOn(photo, garmentBlob, description, 40_000);
+      } catch (first) {
+        // Kolors busy or over quota: try IDM-VTON with whatever time is left.
+        const left = 55_000 - (Date.now() - started);
+        if (first instanceof HfError && first.code === 'invalid_photo') throw first;
+        console.error('kolors failed, trying idm', String(first));
+        if (left < 15_000) throw first;
+        resultUrl = await runHfTryOn(photo, garmentBlob, description, left, IDM);
+      }
       return json(req, { job_id: crypto.randomUUID(), status: 'done', result_url: resultUrl });
     } catch (e) {
       const err = e instanceof HfError ? e : new HfError('server', 'Try-on failed');

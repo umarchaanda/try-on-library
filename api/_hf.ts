@@ -2,9 +2,29 @@
 // Gradio drops the job when its event stream closes, so the whole try-on runs inside one request
 // and the finished image is returned straight away (the client library accepts "done" on the first reply).
 
-const SPACE = (process.env.HF_SPACE_URL || 'https://yisol-idm-vton.hf.space').replace(/\/+$/, '');
-const TRYON_FN_INDEX = Number(process.env.HF_FN_INDEX || 2);
-const TRYON_TRIGGER_ID = Number(process.env.HF_TRIGGER_ID || 25);
+interface SpaceCfg {
+  url: string;
+  fnIndex: number;
+  triggerId: number;
+  /** Builds the Gradio input list from the uploaded person/garment files. */
+  inputs: (person: any, garment: any, description: string) => unknown[];
+}
+
+// Default: Kolors Virtual Try-On. It keeps the garment's real length and styling (untucked kurtis, matching trousers).
+export const KOLORS: SpaceCfg = {
+  url: (process.env.KOLORS_SPACE_URL || 'https://kwai-kolors-kolors-virtual-try-on.hf.space').replace(/\/+$/, ''),
+  fnIndex: 2,
+  triggerId: 26,
+  inputs: (p, g) => [p, g, 0, true],
+};
+
+// Fallback: IDM-VTON. Good for short tops, but it only repaints the torso.
+export const IDM: SpaceCfg = {
+  url: (process.env.HF_SPACE_URL || 'https://yisol-idm-vton.hf.space').replace(/\/+$/, ''),
+  fnIndex: Number(process.env.HF_FN_INDEX || 2),
+  triggerId: Number(process.env.HF_TRIGGER_ID || 25),
+  inputs: (p, g, d) => [{ background: p, layers: [], composite: p }, g, d, true, true, 30, 42],
+};
 const MAX_GARMENT_BYTES = 8 * 1024 * 1024;
 
 export class HfError extends Error {
@@ -44,7 +64,7 @@ export async function fetchGarment(url: string): Promise<Blob> {
   return new Blob([buf], { type });
 }
 
-async function upload(blob: Blob, name: string) {
+async function upload(SPACE: string, blob: Blob, name: string) {
   const fd = new FormData();
   fd.append('files', blob, name);
   const res = await fetch(`${SPACE}/upload`, { method: 'POST', body: fd, headers: headers() });
@@ -54,20 +74,20 @@ async function upload(blob: Blob, name: string) {
 }
 
 /** Runs one try-on and returns the result as a data URL. */
-export async function runHfTryOn(person: Blob, garment: Blob, description: string, deadlineMs: number): Promise<string> {
+export async function runHfTryOn(person: Blob, garment: Blob, description: string, deadlineMs: number, cfg: SpaceCfg = KOLORS): Promise<string> {
+  const SPACE = cfg.url;
   const deadline = Date.now() + deadlineMs;
-  const [p, g] = await Promise.all([upload(person, 'person.jpg'), upload(garment, 'garment.jpg')]);
+  const [p, g] = await Promise.all([upload(SPACE, person, 'person.jpg'), upload(SPACE, garment, 'garment.jpg')]);
   const session = crypto.randomUUID().replace(/-/g, '').slice(0, 11);
 
   const join = await fetch(`${SPACE}/queue/join`, {
     method: 'POST',
     headers: headers({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({
-      // [person editor, garment, description, auto-mask, auto-crop, steps, seed]
-      data: [{ background: p, layers: [], composite: p }, g, description, true, true, 30, 42],
+      data: cfg.inputs(p, g, description),
       event_data: null,
-      fn_index: TRYON_FN_INDEX,
-      trigger_id: TRYON_TRIGGER_ID,
+      fn_index: cfg.fnIndex,
+      trigger_id: cfg.triggerId,
       session_hash: session,
     }),
   });
